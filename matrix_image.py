@@ -53,7 +53,7 @@ class ImageHandler(object):
                     for i in range(3):
                         self.img_data[r, c, i] = MASK_VALUE
 
-   
+
     def find_color_index(self, color):
         colors = ['r', 'g', 'b']
         if color not in colors:
