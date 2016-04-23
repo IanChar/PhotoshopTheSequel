@@ -10,6 +10,7 @@ class ImageHandler(object):
         super(ImageHandler, self).__init__()
         self.path = path
         self.img_data = misc.imread(path)
+        print self.img_data.shape
         self.img_shape = (self.img_data.shape[0], self.img_data.shape[1])
 
     def get_img_data(self):
@@ -63,6 +64,7 @@ class ImageHandler(object):
 
 def main():
     ih = ImageHandler("WaterfallWithText.png")
+    ih.compose_grayscale_mat()
     ih.render_img_mat()
 
 if __name__ == '__main__':

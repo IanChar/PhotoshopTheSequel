@@ -3,8 +3,6 @@ import numpy as np
 from scipy import misc
 import matplotlib.pyplot as plt
 
-ih = ImageHandler("twitter.png")
-A = ih.compose_grayscale_mat()
 patch_size = 3
 
 
@@ -15,12 +13,8 @@ def disp_greyscale(A):
 	ih.render_img_mat()
 
 
-disp_greyscale(A)
-
 
 def encode_image(A):
-	print A[0:10]
-	print "\n"
 
 	M, N = A.shape
 	num_patches = (N-(patch_size-1)) * (M - (patch_size - 1))
@@ -69,14 +63,6 @@ def decode_image(X_t, M, N):
 			A_new[i][j] /= (patch_size*patch_size)
 
 	return A_new
-
-print "encoding..."
-X_t, M, N = encode_image(A)
-print "decoding... for {} x {} matrix".format(M,N)
-A_new = decode_image(X_t, M, N)
-print A_new
-disp_greyscale(A_new)
-
 
 
 # patch set method
