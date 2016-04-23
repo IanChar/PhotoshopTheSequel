@@ -1,5 +1,6 @@
 import numpy as np
 import numpy.linalg as linalg
+import sklearn.decomposition as Decomp
 from sklearn.linear_model import OrthogonalMatchingPursuit as omp
 
 class KSVDSolver(object):
@@ -44,6 +45,7 @@ class KSVDSolver(object):
     def learn_dictionary(self, iterations = 10):
         for _ in range(iterations):
             self.sparse_encode()
+            # print self.get_error()
             self.update_dictionary()
         self.sparse_encode()
 
@@ -77,7 +79,10 @@ class KSVDSolver(object):
                     + self.dictionary[:, k] * self.encoding[k, :]
             updatedError = self.throw_out_sparseness(updatedError, \
                     self.encoding[k, :])
-            U, S, V = linalg.svd(updatedError)
+            try:
+                U, S, V = linalg.svd(updatedError)
+            except linalg.LinAlgError:
+                continue
             
             # Update dictionary and representation
             self.dictionary[:, k] = U[:, 0]
@@ -115,15 +120,28 @@ class KSVDSolver(object):
         
         return error_mat * omega
 
+def compareToScikit(iterations):
+    original = np.asmatrix(np.random.rand(10,53))
+    print linalg.norm(original, 'fro')
+
+    # Our ksvd
+    ksvd = KSVDSolver(original)
+    ksvd.learn_dictionary(iterations)
+    print ksvd.get_error()
+
+    # Scikit learn's dictionary learning
+    dl = Decomp.DictionaryLearning()
+    ret = dl.fit_transform(original)
+    ans = np.asmatrix(ret) * np.asmatrix(dl.components_).T
+    print linalg.norm(original - ans, 'fro')
+
 
 def test():
     original = np.asmatrix(np.random.rand(10,53))
     ksvd = KSVDSolver(original)
     print linalg.norm(original, 'fro')
-    print ksvd.get_error()
     ksvd.learn_dictionary(100)
-    print ksvd.get_error()
     
 
 if __name__ == '__main__':
-    test()
+    compareToScikit(10)
