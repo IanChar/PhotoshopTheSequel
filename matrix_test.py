@@ -70,7 +70,7 @@ def decode_image(X_t, M, N):
 			except:
 				pass
 
-	return A_neww
+	return A_new
 
 
 
