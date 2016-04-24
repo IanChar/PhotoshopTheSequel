@@ -41,28 +41,34 @@ def count_patch_coord(patch_id, M, N, patch_size):
 	j = patch_id % (M - (patch_size - 1)) # get column number
 	return i,j
 
-def put_patch_back(base_i, base_j, row, patch_size, A_new):
+def put_patch_back(base_i, base_j, row, patch_size, A_new, pixel_freq_map):
 	for z in range(len(row)):
 		i = base_i + int(z/patch_size)
 		j = base_j + (z % patch_size)
 		try:
 			A_new[i][j] += row[z]
+			if (i,j) in pixel_freq_map:
+				pixel_freq_map[(i,j)] += 1
+			else:
+				pixel_freq_map[(i,j)] = 1
 		except:
 			pass
 
 def decode_image(X_t, M, N):
 	#patch_size = self.patch_size # get a size of a patch
+	pixel_freq_map = {}
 	A_new = np.zeros((M,N))
 	for patch_id, row in enumerate(X_t):
 		i,j = count_patch_coord(patch_id, M, N, patch_size)
-		put_patch_back(i, j, row, patch_size, A_new)
+		put_patch_back(i, j, row, patch_size, A_new, pixel_freq_map)
 
 	# average all patches for pixels
 	for i in range(M):
 		for j in range(N):
-			A_new[i][j] /= (patch_size*patch_size)
+			A_new[i][j] /= pixel_freq_map[(i,j)]
 
 	return A_new
+
 
 
 # patch set method
