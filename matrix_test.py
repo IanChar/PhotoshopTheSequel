@@ -1,9 +1,9 @@
 from matrix_image import ImageHandler
-import numpy as np 
+import numpy as np
 from scipy import misc
 import matplotlib.pyplot as plt
 
-patch_size = 3
+patch_size = 99
 
 
 def disp_greyscale(A):
@@ -29,8 +29,8 @@ def encode_image(A):
 
 	return X_t, M, N
 
-def count_patch_coord(patch_id, M, N, patch_size): 
-	'''	count the coordinate (i,j) that the first element of 
+def count_patch_coord(patch_id, M, N, patch_size):
+	'''	count the coordinate (i,j) that the first element of
 	patch is pointing to in the orignal image
 
 	Input:

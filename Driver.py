@@ -11,6 +11,7 @@ def main():
 
     print "Encoding X..."
     mat, m, n = encode_image(mat)
+    print type(mat)
 
     print "Learning representation..."
     mat = np.asmatrix(mat).T
@@ -25,7 +26,9 @@ def main():
         for j in range(mat.shape[1]):
             print mat[i, j], guess[i, j]
 
-    result = decode_image(dic * code, m, n)
+    guess = np.asarray(guess.T)
+
+    result = decode_image(guess, m, n)
     ih.set_color_matrix('r', result)
     ih.set_color_matrix('g', result)
     ih.set_color_matrix('b', result)
