@@ -65,9 +65,12 @@ def decode_image(X_t, M, N):
 	# average all patches for pixels
 	for i in range(M):
 		for j in range(N):
-			A_new[i][j] /= pixel_freq_map[(i,j)]
+			try:
+				A_new[i][j] /= pixel_freq_map[(i,j)]
+			except:
+				pass
 
-	return A_new
+	return A_neww
 
 
 
