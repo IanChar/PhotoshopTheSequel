@@ -46,8 +46,7 @@ def tryInpainting():
 def tryDenoising():
     print "Loading/masking image..."
     ih = ImageHandler("WaterfallWithText.png")
-    ih.add_gaussian_noise(variance= 100)
-    ih.img_data = ih.img_data[:100, :100, :]
+    ih.img_data = ih.img_data[:50, :50, :]
     ih.img_shape = (ih.img_data.shape[0], ih.img_data.shape[1])
     mat = ih.compose_grayscale_mat()
     ih.set_color_matrix('r', mat)
@@ -60,21 +59,21 @@ def tryDenoising():
     mat, m, n = encode_image(mat)
 
     print "Learning representation..."
-    # mat = np.asmatrix(mat).T
-    # ksvd = KSVDSolver(mat, masking = False)
-    # ksvd.learn_dictionary(3)
-    # dic, code = ksvd.get_representation()
-    #
-    # print "Decoding matrix..."
-    # guess = dic * code
-    #
-    # # for i in range(mat.shape[0]):
-    # #     for j in range(mat.shape[1]):
-    # #         print mat[i, j], guess[i, j]
+    mat = np.asmatrix(mat).T
+    ksvd = KSVDSolver(mat, masking = False)
+    ksvd.learn_dictionary(12)
+    dic, code = ksvd.get_representation()
+    
+    print "Decoding matrix..."
+    guess = dic * code
+    
+    # for i in range(mat.shape[0]):
+    #     for j in range(mat.shape[1]):
+    #         print mat[i, j], guess[i, j]
 
-    dl = DictionaryLearning()
-    code = dl.fit_transform(mat)
-    guess = code * dl.components_
+    # dl = DictionaryLearning()
+    # code = dl.fit_transform(mat)
+    # guess = code * dl.components_
     guess = np.asarray(guess.T)
 
     result = decode_image(guess, m, n)

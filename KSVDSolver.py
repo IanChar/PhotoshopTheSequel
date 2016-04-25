@@ -47,9 +47,13 @@ class KSVDSolver(object):
 
     def learn_dictionary(self, iterations = 10):
         for _ in range(iterations):
+            print "---------------On iteration", self.total_iterations, "--------------------"
+            print "Sparse encoding..."
             self.sparse_encode(self.masking)
             # print self.get_error()
+            print "Updating dictionary..."
             self.update_dictionary()
+            self.total_iterations += 1
         self.sparse_encode(self.masking)
 
     def get_representation(self):
@@ -92,6 +96,7 @@ class KSVDSolver(object):
             updatedError = self.throw_out_sparseness(updatedError, \
                     self.encoding[k, :])
             try:
+                print "Computing svd of shape", updatedError.shape
                 U, S, V = linalg.svd(updatedError)
             except linalg.LinAlgError:
                 continue
