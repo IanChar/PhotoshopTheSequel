@@ -1,8 +1,24 @@
 from __future__ import division
+from __future__ import print_function
 import numpy as np
 import numpy.linalg as linalg
 import sklearn.decomposition as Decomp
 from sklearn.linear_model import OrthogonalMatchingPursuit as omp
+# CUDA
+import pycuda.autoinit
+import pycuda.driver as drv
+import pycuda.gpuarray as gpuarray
+import numpy as np
+
+import skcuda.linalg as culinalg
+import skcuda.misc as cumisc
+culinalg.init()
+
+# Double precision is only supported by devices with compute
+# capability >= 1.3:
+import string
+import scikits.cuda.cula as cula
+
 
 class KSVDSolver(object):
     """ KSVDSolver
@@ -81,7 +97,11 @@ class KSVDSolver(object):
             updatedError = self.throw_out_sparseness(updatedError, \
                     self.encoding[k, :])
             try:
-                U, S, V = linalg.svd(updatedError)
+                a = np.asarray(updatedError)
+                a_gpu = gpuarray.to_gpu(a)
+                u_gpu, s_gpu, vh_gpu = culinalg.svd(a_gpu)
+                U = u_gpu.get()
+                #U, S, V = linalg.svd(updatedError)
             except linalg.LinAlgError:
                 continue
             
@@ -96,7 +116,11 @@ class KSVDSolver(object):
         if self.total_iterations != -1:
             print "The dictionary has already been inqitialized!"
             return
-        U, S, V = linalg.svd(self.signals, full_matrices=False)
+        a = np.asarray(self.signals)
+        a_gpu = gpuarray.to_gpu(a)
+        u_gpu, s_gpu, vh_gpu = culinalg.svd(a_gpu)
+        U = u_gpu.get()    
+        #U, S, V = linalg.svd(self.signals, full_matrices=False)
         self.dictionary = self.normalize_columns(np.asmatrix(U))
         return self.dictionary
 
