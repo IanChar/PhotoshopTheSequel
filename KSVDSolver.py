@@ -3,6 +3,7 @@ import numpy as np
 import numpy.linalg as linalg
 import sklearn.decomposition as Decomp
 from sklearn.linear_model import OrthogonalMatchingPursuit as omp
+from matrix_image import MASK_VALUE
 
 class KSVDSolver(object):
     """ KSVDSolver
@@ -24,9 +25,10 @@ class KSVDSolver(object):
         have done of KSVD to get the current dictionary
     """
 
-    def __init__(self, signals, dictionary = None, encoding = None):
+    def __init__(self, signals, masking = False, dictionary = None, encoding = None):
         super(KSVDSolver, self).__init__()
         self.signals = signals
+        self.masking = masking
 
         # Set to -1 now so that initializers will know
         self.total_iterations = -1
@@ -38,17 +40,17 @@ class KSVDSolver(object):
 
         self.encoding = encoding
         if encoding is None:
-            self.sparse_encode()
+            self.sparse_encode(masking)
 
         # Now that everything has been initialized we set iterations to 0
         self.total_iterations = 0
 
     def learn_dictionary(self, iterations = 10):
         for _ in range(iterations):
-            self.sparse_encode()
+            self.sparse_encode(self.masking)
             # print self.get_error()
             self.update_dictionary()
-        self.sparse_encode()
+        self.sparse_encode(self.masking)
 
     def get_representation(self):
         return self.dictionary, self.encoding
@@ -58,7 +60,7 @@ class KSVDSolver(object):
 
     """ HELPER FUNCTIONS """
 
-    def sparse_encode(self, nonzero_coefs = None, pursuit = None):
+    def sparse_encode(self, masking, nonzero_coefs = None, pursuit = None):
         if pursuit is None:
             pursuit = omp(n_nonzero_coefs = nonzero_coefs)
 
@@ -67,7 +69,16 @@ class KSVDSolver(object):
                     self.signals.shape[1])))
 
         for c in xrange(self.signals.shape[1]):
-            pursuit.fit(self.dictionary, self.signals[:, c])
+            if masking:
+                maskedVect = np.copy(self.signals[:,c])
+                maskedDic = np.copy(self.dictionary)
+                for r in xrange(self.signals.shape[0]):
+                    if maskedVect[r, 0] == MASK_VALUE:
+                        maskedVect[r, 0] = 0
+                        maskedDic[r, :] = np.asmatrix(np.zeroes(1, maskedDic.shape[1]))
+                pursuit.fit(maskedDic, maskedVect)
+            else:
+                pursuit.fit(self.dictionary, self.signals[:, c])
             self.encoding[:, c] = np.asmatrix(pursuit.coef_).T
 
         return self.encoding
@@ -84,7 +95,7 @@ class KSVDSolver(object):
                 U, S, V = linalg.svd(updatedError)
             except linalg.LinAlgError:
                 continue
-            
+
             # Update dictionary and representation
             self.dictionary[:, k] = U[:, 0]
 
@@ -118,7 +129,7 @@ class KSVDSolver(object):
         omega = np.asmatrix(np.zeros((vect_rows, len(nonsparse_indices))))
         for i, w_i in enumerate(nonsparse_indices):
             omega[w_i, i] = 1
-        
+
         return error_mat * omega
 
 def compareToScikit(iterations):
@@ -142,7 +153,7 @@ def test():
     ksvd = KSVDSolver(original)
     print linalg.norm(original, 'fro')
     ksvd.learn_dictionary(100)
-    
+
 
 if __name__ == '__main__':
     compareToScikit(10)

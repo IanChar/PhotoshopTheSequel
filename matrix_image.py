@@ -61,6 +61,11 @@ class ImageHandler(object):
             raise ValueError("Color not recognized.")
         return colors.index(color)
 
+    def add_gaussian_noise(self, variance = 5):
+        for i in range(3):
+            self.img_data[:, :, i] = self.img_data[:, :, i] + np.sqrt(variance) \
+                    * np.random.randn(self.img_shape[0], self.img_shape[1])
+
 
 def main():
     ih = ImageHandler("WaterfallWithText.png")
