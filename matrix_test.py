@@ -13,6 +13,15 @@ def disp_greyscale(A):
 	ih.render_img_mat()
 
 
+def add_noise(A, perc=0.3):
+	rows, cols = A.shape
+	print A[0:100]
+	total_pixels = rows * cols
+	I = np.random.uniform(low=0.0, high=rows, size=rows*cols*perc)
+	J = np.random.uniform(low=0.0, high=cols, size=rows*cols*perc)
+	for i in range(len(I)):
+		A[I[i],J[i]] = 0.0
+	return A
 
 def encode_image(A):
 
@@ -71,8 +80,6 @@ def decode_image(X_t, M, N):
 				pass
 
 	return A_new
-
-
 
 # patch set method
 # make a matrix to count how many pathes are accessing pixel - O(2) lookup time vs 8 if statements (8x complexity)
