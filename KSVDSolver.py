@@ -17,7 +17,6 @@ culinalg.init()
 # Double precision is only supported by devices with compute
 # capability >= 1.3:
 import string
-import scikits.cuda.cula as cula
 
 class KSVDSolver(object):
     """ KSVDSolver
@@ -165,34 +164,7 @@ def test():
     ksvd = KSVDSolver(original)
     print linalg.norm(original, 'fro')
     ksvd.learn_dictionary(100)
-    
 
-if __name__ == '__main__':
-    compareToScikit(10)
-_mat * omega
-
-def compareToScikit(iterations):
-    original = np.asmatrix(np.random.rand(10,53))
-    print linalg.norm(original, 'fro')
-
-    # Our ksvd
-    ksvd = KSVDSolver(original)
-    ksvd.learn_dictionary(iterations)
-    print ksvd.get_error()
-
-    # Scikit learn's dictionary learning
-    dl = Decomp.DictionaryLearning()
-    ret = dl.fit_transform(original)
-    ans = np.asmatrix(ret) * np.asmatrix(dl.components_).T
-    print linalg.norm(original - ans, 'fro')
-
-
-def test():
-    original = np.asmatrix(np.random.rand(10,53))
-    ksvd = KSVDSolver(original)
-    print linalg.norm(original, 'fro')
-    ksvd.learn_dictionary(100)
-    
 
 if __name__ == '__main__':
     compareToScikit(10)
