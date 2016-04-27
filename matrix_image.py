@@ -10,11 +10,29 @@ class ImageHandler(object):
         super(ImageHandler, self).__init__()
         self.path = path
         self.img_data = misc.imread(path)
+        self.old_img_data = 0
         print self.img_data.shape
         self.img_shape = (self.img_data.shape[0], self.img_data.shape[1])
 
+    def update_old_image(self, img_data):
+        #old image reference
+        self.old_img_data = np.copy(img_data)
+        grey_old = self.convert_greyscale()
+        for color in ['r','g','b']:
+            color_index = self.find_color_index(color)
+            self.old_img_data[:, :, color_index] = grey_old
+
+
     def get_img_data(self):
         return self.img_data
+
+    def render_img_mat_compare(self):
+        f, (ax1, ax2) = plt.subplots(1, 2, sharey=True)
+        ax1.imshow(self.old_img_data)
+        ax1.set_title('Before')
+        ax2.imshow(self.img_data)
+        ax2.set_title('After')
+        plt.show()
 
     def render_img_mat(self):
         plt.imshow(self.img_data)
@@ -30,6 +48,15 @@ class ImageHandler(object):
         for r in xrange(rows):
             for c in xrange(cols):
                 to_return[r, c] = float(sum(list(self.img_data[r, c, :])))/3
+        return to_return
+
+    # conversts original image to greyscale
+    def convert_greyscale(self):
+        to_return = np.asmatrix(np.empty(self.img_shape))
+        rows, cols = self.img_shape
+        for r in xrange(rows):
+            for c in xrange(cols):
+                to_return[r, c] = float(sum(list(self.old_img_data[r, c, :])))/3
         return to_return
 
 

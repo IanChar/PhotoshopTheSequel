@@ -34,12 +34,14 @@ class KSVDSolver(object):
         self.total_iterations = -1
 
         if dictionary is None:
+            print "Computing initial dictionary..."
             self.find_init_dict()
         else:
             self.dictionary = dictionary
 
         self.encoding = encoding
         if encoding is None:
+            print "Doing initial sparse encoding..."
             self.sparse_encode(masking)
 
         # Now that everything has been initialized we set iterations to 0
@@ -47,13 +49,10 @@ class KSVDSolver(object):
 
     def learn_dictionary(self, iterations = 10):
         for _ in range(iterations):
-            print "---------------On iteration", self.total_iterations, "--------------------"
-            print "Sparse encoding..."
-            self.sparse_encode(self.masking)
-            # print self.get_error()
-            print "Updating dictionary..."
-            self.update_dictionary()
             self.total_iterations += 1
+            print "ON ITERATION:", self.total_iterations
+            self.update_dictionary()
+            # self.dictionary = self.normalize_columns(self.dictionary)
         self.sparse_encode(self.masking)
 
     def get_representation(self):
@@ -66,7 +65,7 @@ class KSVDSolver(object):
 
     def sparse_encode(self, masking, nonzero_coefs = None, pursuit = None):
         if pursuit is None:
-            pursuit = omp(n_nonzero_coefs = nonzero_coefs)
+            pursuit = omp(n_nonzero_coefs = nonzero_coefs, tol = 10.0)
 
         if self.encoding is None:
             self.encoding = np.asmatrix(np.empty((self.dictionary.shape[1], \
@@ -93,17 +92,20 @@ class KSVDSolver(object):
             # Compute SVD for the sparse elements
             updatedError = errorMat \
                     + self.dictionary[:, k] * self.encoding[k, :]
-            updatedError = self.throw_out_sparseness(updatedError, \
-                    self.encoding[k, :])
+            updatedError, nonsparse_indices = self.throw_out_sparseness( \
+                    updatedError, self.encoding[k, :])
             try:
                 print "Computing svd of shape", updatedError.shape
                 U, S, V = linalg.svd(updatedError)
             except linalg.LinAlgError:
                 continue
 
-            # Update dictionary and representation
+            # Update dictionary and encoding
             self.dictionary[:, k] = U[:, 0]
 
+            truncated_encoding = V[:, 0] * S[0]
+            for trunc_index, full_index in enumerate(nonsparse_indices):
+                self.encoding[k, full_index] = truncated_encoding[trunc_index, 0]
 
 
     # The initial dictionary we start with if no alternative is provided
@@ -135,30 +137,11 @@ class KSVDSolver(object):
         for i, w_i in enumerate(nonsparse_indices):
             omega[w_i, i] = 1
 
-        return error_mat * omega
-
-def compareToScikit(iterations):
-    original = np.asmatrix(np.random.rand(10,53))
-    print linalg.norm(original, 'fro')
-
-    # Our ksvd
-    ksvd = KSVDSolver(original)
-    ksvd.learn_dictionary(iterations)
-    print ksvd.get_error()
-
-    # Scikit learn's dictionary learning
-    dl = Decomp.DictionaryLearning()
-    ret = dl.fit_transform(original)
-    ans = np.asmatrix(ret) * np.asmatrix(dl.components_).T
-    print linalg.norm(original - ans, 'fro')
-
+        return error_mat * omega, nonsparse_indices
 
 def test():
-    original = np.asmatrix(np.random.rand(10,53))
-    ksvd = KSVDSolver(original)
-    print linalg.norm(original, 'fro')
-    ksvd.learn_dictionary(100)
+    pass
 
 
 if __name__ == '__main__':
-    compareToScikit(10)
+    test()
