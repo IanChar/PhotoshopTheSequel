@@ -65,7 +65,7 @@ class KSVDSolver(object):
 
     def sparse_encode(self, masking, nonzero_coefs = None, pursuit = None):
         if pursuit is None:
-            pursuit = omp(n_nonzero_coefs = nonzero_coefs)
+            pursuit = omp(n_nonzero_coefs = nonzero_coefs, tol = 10.0)
 
         if self.encoding is None:
             self.encoding = np.asmatrix(np.empty((self.dictionary.shape[1], \
@@ -95,6 +95,7 @@ class KSVDSolver(object):
             updatedError, nonsparse_indices = self.throw_out_sparseness( \
                     updatedError, self.encoding[k, :])
             try:
+                print "Computing svd of shape", updatedError.shape
                 U, S, V = linalg.svd(updatedError)
             except linalg.LinAlgError:
                 continue
