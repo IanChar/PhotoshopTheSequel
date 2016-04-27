@@ -3,7 +3,7 @@ import numpy as np
 from scipy import misc
 import matplotlib.pyplot as plt
 
-patch_size = 99
+patch_size = 8
 
 
 def disp_greyscale(A):
