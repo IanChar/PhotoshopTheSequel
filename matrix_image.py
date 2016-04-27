@@ -10,9 +10,13 @@ class ImageHandler(object):
         super(ImageHandler, self).__init__()
         self.path = path
         self.img_data = misc.imread(path)
+        self.old_img_data = 0
+        print self.img_data.shape
         self.img_shape = (self.img_data.shape[0], self.img_data.shape[1])
+
+    def update_old_image(self, img_data):
         #old image reference
-        self.old_img_data = misc.imread(path)
+        self.old_img_data = np.copy(img_data)
         grey_old = self.convert_greyscale()
         for color in ['r','g','b']:
             color_index = self.find_color_index(color)

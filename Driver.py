@@ -10,11 +10,12 @@ def tryDenoising():
     print "___________LOADING IN IMAGE______________"
     ih = ImageHandler("downsized_falls.png")
     ih.add_gaussian_noise(variance= 50)
+    ih.update_old_image(ih.img_data)
     mat = ih.compose_grayscale_mat()
-    ih.set_color_matrix('r', mat)
-    ih.set_color_matrix('g', mat)
-    ih.set_color_matrix('b', mat)
-    ih.render_img_mat()
+    #ih.set_color_matrix('r', mat)
+    #ih.set_color_matrix('g', mat)
+    #ih.set_color_matrix('b', mat)
+    #ih.render_img_mat()
 
 
     print "________________UNROLLING X______________"
@@ -23,7 +24,7 @@ def tryDenoising():
     print "___________________KSVD____________________"
     mat = np.asmatrix(mat).T
     ksvd = KSVDSolver(mat, masking = False)
-    ksvd.learn_dictionary(3)
+    ksvd.learn_dictionary(0)
     dic, code = ksvd.get_representation()
     guess = dic * code
     guess = np.asarray(guess.T)
@@ -39,7 +40,8 @@ def tryDenoising():
     ih.set_color_matrix('r', result)
     ih.set_color_matrix('g', result)
     ih.set_color_matrix('b', result)
-    ih.render_img_mat()
+    #ih.render_img_mat()
+    ih.render_img_mat_compare()
 
 def main():
     tryDenoising()
