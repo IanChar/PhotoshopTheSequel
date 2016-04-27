@@ -1,9 +1,11 @@
+from __future__ import division
 from matrix_image import ImageHandler
 import numpy as np
 from scipy import misc
 import matplotlib.pyplot as plt
 
-patch_size = 99
+
+patch_size = 49
 
 
 def disp_greyscale(A):
@@ -15,7 +17,6 @@ def disp_greyscale(A):
 
 def add_noise(A, perc=0.3):
 	rows, cols = A.shape
-	print A[0:100]
 	total_pixels = rows * cols
 	I = np.random.uniform(low=0.0, high=rows, size=rows*cols*perc)
 	J = np.random.uniform(low=0.0, high=cols, size=rows*cols*perc)
