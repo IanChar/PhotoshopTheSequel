@@ -5,18 +5,18 @@ from matrix_test import encode_image, decode_image, disp_greyscale, add_noise
 from sklearn.decomposition import DictionaryLearning
 
 
+patch_size = 19
 def tryInpainting():
     print "Loading/masking image..."
     ih = ImageHandler("WaterfallWithText.png")
-    ih.img_data = ih.img_data[400:500, 50:150, :]
+    ih.img_data = ih.img_data[0:20, 50:70, :]
     ih.img_shape = (ih.img_data.shape[0], ih.img_data.shape[1])
     ih.mask_rgb((255, 0, 0))
     mat = ih.compose_grayscale_mat()
-    ih.set_color_matrix('r', mat)
-    ih.set_color_matrix('g', mat)
-    ih.set_color_matrix('b', mat)
-    ih.render_img_mat()
-
+    #ih.set_color_matrix('r', mat)
+    #ih.set_color_matrix('g', mat)
+    #ih.set_color_matrix('b', mat)
+    #ih.render_img_mat()
 
     print "Encoding X..."
     mat, m, n = encode_image(mat, patch_size)
@@ -26,7 +26,7 @@ def tryInpainting():
     print "Learning representation..."
 
     ksvd = KSVDSolver(mat, masking = True)
-    ksvd.learn_dictionary(10)
+    ksvd.learn_dictionary(3)
     dic, code = ksvd.get_representation()
 
     print "Decoding matrix..."
@@ -44,29 +44,30 @@ def tryInpainting():
     ih.set_color_matrix('r', result)
     ih.set_color_matrix('g', result)
     ih.set_color_matrix('b', result)
-    ih.render_img_mat()
+    #ih.render_img_mat()
     ih.render_img_mat_compare()
 
 
 def tryDenoising():
     print "Loading/masking image..."
     ih = ImageHandler("WaterfallWithText.png")
-    ih.img_data = ih.img_data[:50, :50, :]
+    ih.img_data = ih.img_data[:20, :20, :]
     ih.img_shape = (ih.img_data.shape[0], ih.img_data.shape[1])
+    ih.update_old_image(ih.img_data)
     mat = ih.compose_grayscale_mat()
-    ih.set_color_matrix('r', mat)
-    ih.set_color_matrix('g', mat)
-    ih.set_color_matrix('b', mat)
-    ih.render_img_mat()
+    #ih.set_color_matrix('r', mat)
+    #ih.set_color_matrix('g', mat)
+    #ih.set_color_matrix('b', mat)
+    #ih.render_img_mat()
 
 
     print "Encoding X..."
-    mat, m, n = encode_image(mat)
+    mat, m, n = encode_image(mat, patch_size)
 
     print "Learning representation..."
     mat = np.asmatrix(mat).T
     ksvd = KSVDSolver(mat, masking = False)
-    ksvd.learn_dictionary(12)
+    ksvd.learn_dictionary(3)
     dic, code = ksvd.get_representation()
     
     print "Decoding matrix..."
@@ -81,11 +82,12 @@ def tryDenoising():
     # guess = code * dl.components_
     guess = np.asarray(guess.T)
 
-    result = decode_image(guess, m, n)
+    result = decode_image(guess, m, n, patch_size)
     ih.set_color_matrix('r', result)
     ih.set_color_matrix('g', result)
     ih.set_color_matrix('b', result)
-    ih.render_img_mat()
+    #ih.render_img_mat()
+    ih.render_img_mat_compare()
 
 def main():
     tryDenoising()
