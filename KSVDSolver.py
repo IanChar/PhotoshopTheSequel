@@ -60,7 +60,7 @@ class KSVDSolver(object):
 
     def sparse_encode(self, nonzero_coefs = None, pursuit = None):
         if pursuit is None:
-            pursuit = omp(n_nonzero_coefs = nonzero_coefs)
+            pursuit = omp(n_nonzero_coefs = nonzero_coefs, tol = 10.0)
 
         if self.encoding is None:
             self.encoding = np.asmatrix(np.empty((self.dictionary.shape[1], \

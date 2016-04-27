@@ -23,7 +23,7 @@ def add_noise(A, perc=0.3):
 		A[I[i],J[i]] = 0.0
 	return A
 
-def encode_image(A):
+def encode_image(A, patch_size):
 
 	M, N = A.shape
 	num_patches = (N-(patch_size-1)) * (M - (patch_size - 1))
@@ -63,7 +63,7 @@ def put_patch_back(base_i, base_j, row, patch_size, A_new, pixel_freq_map):
 		except:
 			pass
 
-def decode_image(X_t, M, N):
+def decode_image(X_t, M, N, patch_size):
 	#patch_size = self.patch_size # get a size of a patch
 	pixel_freq_map = {}
 	A_new = np.zeros((M,N))
